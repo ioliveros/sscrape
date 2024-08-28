@@ -160,8 +160,8 @@ def run(url, proxy_file):
 if __name__ == "__main__":
 
     parser = argparse.ArgumentParser(description="Run web scraping with proxies.")
-    parser.add_argument("url", help="The URL to scrape.")
-    parser.add_argument("proxy_file", help="The file containing proxy list.")
+    parser.add_argument("-u", "--url", required=True, help="The URL to scrape.")
+    parser.add_argument("-p", "--proxy_file", required=True, help="The file containing proxy list.")
     
     args = parser.parse_args()
     run(args.url, args.proxy_file)
