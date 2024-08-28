@@ -1,5 +1,5 @@
 #!/bin/bash
 
-scrape.py \
+sscrape.py \
     --url="https://www.nordstrom.com/browse/women/clothing/dresses" \
     --proxy_file="proxies.txt"

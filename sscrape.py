@@ -19,12 +19,12 @@ logging.basicConfig(
     level=logging.DEBUG, 
     format='%(asctime)s - %(name)s - %(levelname)s - %(message)s',
     handlers=[
-        logging.FileHandler("playwright.log"),
+        logging.FileHandler("sscrape.log"),
         logging.StreamHandler()
     ]
 )
     
-logger = logging.getLogger('playwright')
+logger = logging.getLogger('sscrape')
 
 
 def get_root_domain(url):
@@ -32,12 +32,10 @@ def get_root_domain(url):
     return f'{parsed_url.scheme}://{parsed_url.netloc}'
 
 def random_string(length=10):
-    """Generate a random alphanumeric string."""
     characters = string.ascii_letters + string.digits
     return ''.join(random.choice(characters) for _ in range(length))
 
 def random_date(start_year=2020, end_year=2025):
-    """Generate a random date in ISO format."""
     start_date = datetime(year=start_year, month=1, day=1)
     end_date = datetime(year=end_year, month=12, day=31)
     random_date = start_date + timedelta(days=random.randint(0, (end_date - start_date).days))
@@ -93,23 +91,21 @@ def scrape(url, proxy):
         logger.info(json.dumps(headers, indent=2))
         browser = p.chromium.launch(
             headless=True, 
-            args=["--no-sandbox", "--disable-gpu"], 
+            args=[
+                "--no-sandbox", 
+                "--disable-gpu"
+            ], 
             proxy={"server": f"http://{proxy}"}
         )
 
         logger.info(f"go to page:: {url}")
-        
         page = browser.new_page()
         page.set_extra_http_headers(headers)
-        page.goto(url, wait_until="load")
+        page.goto(url, wait_until="domcontentloaded")
         page.wait_for_load_state("networkidle")
-
         html_content = page.content()
 
-        # look for product links
         has_links = save_data(url, html_content, proxy) 
-
-        # save page for verification
         if has_links:
             save_page(proxy, html_content) 
         
@@ -138,7 +134,7 @@ def save_data(url, html_content, proxy):
     return True if len(product_links) > 0 else False
 
 def save_page(proxy, html_content):
-    file_name = f"page-{proxy}.html"
+    file_name = f"html/page-{proxy}.html"
     with open(file_name, "w", encoding="utf-8") as file:
         file.write(html_content)
     logger.info(f"Successfully sraped:: {file_name}")
